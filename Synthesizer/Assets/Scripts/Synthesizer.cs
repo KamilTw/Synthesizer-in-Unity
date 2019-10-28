@@ -10,6 +10,7 @@ public class Synthesizer : MonoBehaviour
     public Slider squareSlider;
     public Slider triangleSlider;
     public Slider sawtoothSlider;
+    public Slider whiteNoiseSlider;
     public List<Oscillator> oscillators = new List<Oscillator>();
 
     [Header("Envelope")]
@@ -33,6 +34,7 @@ public class Synthesizer : MonoBehaviour
         squareSlider.onValueChanged.AddListener(delegate { OscillatorChange(); });
         triangleSlider.onValueChanged.AddListener(delegate { OscillatorChange(); });
         sawtoothSlider.onValueChanged.AddListener(delegate { OscillatorChange(); });
+        whiteNoiseSlider.onValueChanged.AddListener(delegate { OscillatorChange(); });
 
         // Envelope
         EnvelopeChange();
@@ -40,7 +42,6 @@ public class Synthesizer : MonoBehaviour
         decaySlider.onValueChanged.AddListener(delegate { EnvelopeChange(); });
         sustainSlider.onValueChanged.AddListener(delegate { EnvelopeChange(); });
         releaseSlider.onValueChanged.AddListener(delegate { EnvelopeChange(); });
-
     }
 
     void Update()
@@ -55,6 +56,7 @@ public class Synthesizer : MonoBehaviour
             oscillator.squareGain = squareSlider.value;
             oscillator.triangleGain = triangleSlider.value;
             oscillator.sawtoothGain = sawtoothSlider.value;
+            oscillator.whiteNoiseGain = whiteNoiseSlider.value;
         }
     }
 

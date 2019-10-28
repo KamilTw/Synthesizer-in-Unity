@@ -9,12 +9,14 @@ public class Oscillator : MonoBehaviour
     public float squareGain;
     public float triangleGain;
     public float sawtoothGain;
+    public float whiteNoiseGain;
 
     private double samplingFrequency = 48000.0;
     private double phase;
     public float time;
     private int t = 0;
     private Envelope envelope;
+    private System.Random rand = new System.Random();
 
     void Update()
     {
@@ -92,6 +94,11 @@ public class Oscillator : MonoBehaviour
                 d += (Mathf.Sin(n * (float)phase + lfoAmpSlider * (float)frequency * Mathf.Sin(lfoFreq * t))) / n;
             }
             data += d * sawtoothGain * (2.0f / Mathf.PI);
+            activeOscCounter++;
+        }
+        if (whiteNoiseGain > 0.0f)
+        {
+            data += whiteNoiseGain * (float)(rand.NextDouble() * 2.0 - 1.0);
             activeOscCounter++;
         }
 
