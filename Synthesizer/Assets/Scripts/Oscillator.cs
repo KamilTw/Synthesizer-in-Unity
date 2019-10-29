@@ -10,6 +10,7 @@ public class Oscillator : MonoBehaviour
     public float triangleGain;
     public float sawtoothGain;
     public float whiteNoiseGain;
+    public float redNoiseGain;
 
     private double samplingFrequency = 48000.0;
     private double phase;
@@ -17,6 +18,17 @@ public class Oscillator : MonoBehaviour
     private int t = 0;
     private Envelope envelope;
     private System.Random rand = new System.Random();
+    private int redNoiseSampleCounter = 50;
+    private float redNoiseFirstSample;
+    private float redNoiseLastSample;
+
+    private int skippedSamples = 15;
+
+    void Start()
+    {
+        //Debug.Log(0.003316635f * (1.0f - ((9.0f - 1.0f) / (10.0f - 1.0f))) + 0.04059562f * ((9.0f - 1.0f) / (10.0f - 1.0f)));
+        // 0.007458745        // 0.03645351
+    }
 
     void Update()
     {
@@ -99,6 +111,27 @@ public class Oscillator : MonoBehaviour
         if (whiteNoiseGain > 0.0f)
         {
             data += whiteNoiseGain * (float)(rand.NextDouble() * 2.0 - 1.0);
+            activeOscCounter++;
+        }
+        if (redNoiseGain > 0.0f)
+        {
+            float d = 0;
+            if (redNoiseSampleCounter < skippedSamples)
+            {
+                // Interpolation
+                d = redNoiseFirstSample * (1.0f - ((redNoiseSampleCounter - 1.0f) / (skippedSamples - 1.0f))) + redNoiseLastSample * ((redNoiseSampleCounter - 1.0f) / (skippedSamples - 1.0f));
+                redNoiseSampleCounter++;
+            }
+            else
+            {
+                redNoiseFirstSample = redNoiseLastSample;
+                redNoiseLastSample = (float)(rand.NextDouble() * 2.0 - 1.0);
+                redNoiseSampleCounter = 2;
+
+                d = redNoiseFirstSample;
+            }
+
+            data += redNoiseGain * d;
             activeOscCounter++;
         }
 
