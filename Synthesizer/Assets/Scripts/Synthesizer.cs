@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -40,21 +39,15 @@ public class Synthesizer : MonoBehaviour
     public Slider bpCutoff;
     public Slider bpQ;
 
+    // Filters
+    private LPFilter lpFilter = new LPFilter();
+    private HPFilter hpFilter = new HPFilter();
+    private BPFilter bpFilter = new BPFilter();
+
     // Filters values
     private float[] dataCopy = new float[2048];     // Current frame (array) copy
     private float[] oldY = new float[4];            // Old frame last samples after filtering
     private float[] oldX = new float[4];            // Old frame last samples before filtering
-
-    private float s;
-    private float c;
-    private float alfa;
-    private float r;
-
-    private float a0;
-    private float a1;
-    private float a2;
-    private float b1;
-    private float b2;
 
     void Start()
     {
@@ -116,44 +109,17 @@ public class Synthesizer : MonoBehaviour
 
     void LPFilterChange()
     {
-        s = Mathf.Sin(lpCutoff.value * 2.0f * Mathf.PI / 48000);
-        c = Mathf.Cos(lpCutoff.value * 2.0f * Mathf.PI / 48000);
-        alfa = s / (2 * lpQ.value);
-        r = 1 / (1 + alfa);
-
-        a0 = 0.5f * (1 - c) * r;
-        a1 = (1 - c) * r;
-        a2 = a0;
-        b1 = -2 * c * r;
-        b2 = (1 - alfa) * r;
+        lpFilter.UpdateFilterValues(lpCutoff.value, lpQ.value);
     }
 
     void HPFilterChange()
     {
-        s = Mathf.Sin(hpCutoff.value * 2.0f * Mathf.PI / 48000);
-        c = Mathf.Cos(hpCutoff.value * 2.0f * Mathf.PI / 48000);
-        alfa = s / (2 * hpQ.value);
-        r = 1 / (1 + alfa);
-
-        a0 = 0.5f * (1 + c) * r;
-        a1 = -(1 + c) * r;
-        a2 = a0;
-        b1 = -2 * c * r;
-        b2 = (1 - alfa) * r;
+        hpFilter.UpdateFilterValues(hpCutoff.value, hpQ.value);
     }
 
     void BPFilterChange()
     {
-        s = Mathf.Sin(bpCutoff.value * 2.0f * Mathf.PI / 48000);
-        c = Mathf.Cos(bpCutoff.value * 2.0f * Mathf.PI / 48000);
-        alfa = s / (2 * bpQ.value);
-        r = 1 / (1 + alfa);
-
-        a0 = alfa * r;
-        a1 = 0;
-        a2 = -a0;
-        b1 = -2 * c * r;
-        b2 = (1 - alfa) * r;
+        bpFilter.UpdateFilterValues(bpCutoff.value, bpQ.value);
     }
 
     // Signals mixing
@@ -172,7 +138,6 @@ public class Synthesizer : MonoBehaviour
             }
         }
 
-
         // Filters
         for (int i = 0; i < data.Length; i++)
         {
@@ -181,15 +146,15 @@ public class Synthesizer : MonoBehaviour
 
         if (lpCutoff.value != lpCutoff.minValue)
         {
-            Filter(ref data, channels);
+            lpFilter.ExecuteFilter(ref data, channels, dataCopy, oldY, oldX);
         }
         if (hpCutoff.value != hpCutoff.minValue)
         {
-            Filter(ref data, channels);
+            hpFilter.ExecuteFilter(ref data, channels, dataCopy, oldY, oldX);
         }
         if (bpCutoff.value != bpCutoff.minValue)
         {
-            Filter(ref data, channels);
+            bpFilter.ExecuteFilter(ref data, channels, dataCopy, oldY, oldX);
         }
 
         oldY[0] = data[2044];
@@ -201,29 +166,5 @@ public class Synthesizer : MonoBehaviour
         oldX[1] = dataCopy[2045];
         oldX[2] = dataCopy[2046];
         oldX[3] = dataCopy[2047];
-    }
-
-    void Filter(ref float[] data, int channels)
-    {
-        for (int i = 0; i < data.Length; i += channels)
-        {
-            if (i >= 4)
-            {
-                data[i] = a0 * dataCopy[i] + a1 * dataCopy[i - 1 * channels] + a2 * dataCopy[i - 2 * channels] - b1 * data[i - 1 * channels] - b2 * data[i - 2 * channels];
-            }
-            else if (i == 0)
-            {                
-                data[0] = a0 * dataCopy[0] + a1 * oldX[2] + a2 * oldX[0] - b1 * oldY[2] - b2 * oldY[0];
-            }
-            else if (i == 2)
-            {
-                data[2] = a0 * dataCopy[2] + a1 * dataCopy[0] + a2 * oldX[2] - b1 * data[0] - b2 * oldY[2];
-            }
-
-            if (channels == 2)
-            {
-                data[i + 1] = data[i];
-            }
-        }
     }
 }
