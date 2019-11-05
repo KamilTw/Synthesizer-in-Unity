@@ -110,7 +110,15 @@ public class Oscillator : MonoBehaviour
         }
         if (whiteNoiseGain > 0.0f)
         {
-            data += whiteNoiseGain * (float)(rand.NextDouble() * 2.0 - 1.0);
+            if (lfoAmpSlider == 0)
+            {
+                data += whiteNoiseGain * (float)(rand.NextDouble() * 2.0 - 1.0);
+            }
+            else
+            {
+                data += whiteNoiseGain * Mathf.Sin((float)(rand.NextDouble() * 2.0 - 1.0) + lfoAmpSlider * (float)frequency * Mathf.Sin(lfoFreq * t));
+            }
+            
             activeOscCounter++;
         }
         if (redNoiseGain > 0.0f)
@@ -124,8 +132,16 @@ public class Oscillator : MonoBehaviour
             }
             else
             {
-                redNoiseFirstSample = redNoiseLastSample;
-                redNoiseLastSample = (float)(rand.NextDouble() * 2.0 - 1.0);
+                redNoiseFirstSample = redNoiseLastSample;              
+                if (lfoAmpSlider == 0)
+                {
+                    redNoiseLastSample = (float)(rand.NextDouble() * 2.0 - 1.0);
+                }
+                else
+                {
+                    redNoiseLastSample = Mathf.Sin((float)(rand.NextDouble() * 2.0 - 1.0) + lfoAmpSlider * (float)frequency * Mathf.Sin(lfoFreq * t));
+                }
+                
                 redNoiseSampleCounter = 2;
 
                 d = redNoiseFirstSample;
