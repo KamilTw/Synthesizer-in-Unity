@@ -27,7 +27,9 @@ public class Oscillator : MonoBehaviour
     void Start()
     {
         //Debug.Log(0.003316635f * (1.0f - ((9.0f - 1.0f) / (10.0f - 1.0f))) + 0.04059562f * ((9.0f - 1.0f) / (10.0f - 1.0f)));
-        // 0.007458745        // 0.03645351
+
+        // 0.007458745
+        // 0.03645351
     }
 
     void Update()

@@ -39,6 +39,9 @@ public class Synthesizer : MonoBehaviour
     public Slider bpCutoff;
     public Slider bpQ;
 
+    [Header("Sound buttons")]
+    public Button seaSound;
+
     // Filters
     private LPFilter lpFilter = new LPFilter();
     private HPFilter hpFilter = new HPFilter();
@@ -75,6 +78,9 @@ public class Synthesizer : MonoBehaviour
 
         bpCutoff.onValueChanged.AddListener(delegate { BPFilterChange(); });
         bpQ.onValueChanged.AddListener(delegate { BPFilterChange(); });
+
+        // Buttons
+        seaSound.onClick.AddListener(delegate { EnableSeaSound(); });
     }
 
     void OscillatorChange()
@@ -166,5 +172,29 @@ public class Synthesizer : MonoBehaviour
         oldX[1] = dataCopy[2045];
         oldX[2] = dataCopy[2046];
         oldX[3] = dataCopy[2047];
+    }
+
+    void EnableSeaSound()
+    {
+        sinSlider.value = 0;
+        squareSlider.value = 0;
+        triangleSlider.value = 0;
+        sawtoothSlider.value = 0;
+        whiteNoiseSlider.value = 0;
+        redNoiseSlider.value = redNoiseSlider.maxValue;
+
+
+        lfoFreqSlider.value = 0.0000001f;
+        lfoAmpSlider.value = lfoAmpSlider.maxValue;
+
+
+        lpCutoff.value = 500;
+        lpQ.value = lpQ.maxValue;
+
+        hpCutoff.value = 0;
+        hpQ.value = 0;
+
+        bpCutoff.value = 0;
+        bpQ.value = 0;
     }
 }
