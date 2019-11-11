@@ -171,15 +171,15 @@ public class Synthesizer : MonoBehaviour
             dataCopy[i] = data[i];
         }
 
-        if (lpCutoff.value != lpCutoff.minValue)
+        if (data[0] != 0 && lpCutoff.value != lpCutoff.minValue)
         {
             lpFilter.ExecuteFilter(ref data, channels, dataCopy, oldY, oldX);          
         }
-        if (hpCutoff.value != hpCutoff.minValue)
+        if (data[0] != 0 && hpCutoff.value != hpCutoff.minValue)
         {
             hpFilter.ExecuteFilter(ref data, channels, dataCopy, oldY, oldX);
         }
-        if (bpCutoff.value != bpCutoff.minValue)
+        if (data[0] != 0 && bpCutoff.value != bpCutoff.minValue)
         {
             bpFilter.ExecuteFilter(ref data, channels, dataCopy, oldY, oldX);
         }

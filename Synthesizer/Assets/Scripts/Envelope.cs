@@ -19,8 +19,6 @@
 
         if (noteOn)
         {
-            //ads
-
             // Attack
             if (lifeTime <= attackTime)
             {
