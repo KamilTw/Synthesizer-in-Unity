@@ -42,6 +42,12 @@ public class Synthesizer : MonoBehaviour
     [Header("Sound buttons")]
     public Button seaSound;
 
+    [Header("LP cutoff lfo")]
+    public Toggle lpCutoffLfoSwitch;
+    public Slider lpCutoffLfoFreq;
+    public Slider lpCutoffLfoAmp;
+    public Slider lpCutoffLfoStartPoint;
+
     // Filters
     private LPFilter lpFilter = new LPFilter();
     private HPFilter hpFilter = new HPFilter();
@@ -51,6 +57,8 @@ public class Synthesizer : MonoBehaviour
     private float[] dataCopy = new float[2048];     // Current frame (array) copy
     private float[] oldY = new float[4];            // Old frame last samples after filtering
     private float[] oldX = new float[4];            // Old frame last samples before filtering
+
+    private int timer = 0;
 
     void Start()
     {
@@ -81,6 +89,11 @@ public class Synthesizer : MonoBehaviour
 
         // Buttons
         seaSound.onClick.AddListener(delegate { EnableSeaSound(); });
+    }
+
+    void Update()
+    {
+        LPCutoffLFOChange();
     }
 
     void OscillatorChange()
@@ -128,6 +141,14 @@ public class Synthesizer : MonoBehaviour
         bpFilter.UpdateFilterValues(bpCutoff.value, bpQ.value);
     }
 
+    void LPCutoffLFOChange()
+    {
+        if (lpCutoffLfoSwitch.isOn)
+        {
+            lpCutoff.value = (Mathf.Sin(lpCutoffLfoFreq.value * timer) * lpCutoffLfoAmp.value) + lpCutoffLfoStartPoint.value;
+        }
+    }
+
     // Signals mixing
     void OnAudioFilterRead(float[] data, int channels)
     {
@@ -152,7 +173,7 @@ public class Synthesizer : MonoBehaviour
 
         if (lpCutoff.value != lpCutoff.minValue)
         {
-            lpFilter.ExecuteFilter(ref data, channels, dataCopy, oldY, oldX);
+            lpFilter.ExecuteFilter(ref data, channels, dataCopy, oldY, oldX);          
         }
         if (hpCutoff.value != hpCutoff.minValue)
         {
@@ -172,6 +193,9 @@ public class Synthesizer : MonoBehaviour
         oldX[1] = dataCopy[2045];
         oldX[2] = dataCopy[2046];
         oldX[3] = dataCopy[2047];
+
+        // Needed to cutoff lfo
+        timer++;
     }
 
     void EnableSeaSound()
@@ -180,8 +204,8 @@ public class Synthesizer : MonoBehaviour
         squareSlider.value = 0;
         triangleSlider.value = 0;
         sawtoothSlider.value = 0;
-        whiteNoiseSlider.value = 0;
-        redNoiseSlider.value = redNoiseSlider.maxValue;
+        whiteNoiseSlider.value = whiteNoiseSlider.maxValue;
+        redNoiseSlider.value = 0.05f;
 
 
         lfoFreqSlider.value = 0.0000001f;
@@ -189,12 +213,17 @@ public class Synthesizer : MonoBehaviour
 
 
         lpCutoff.value = 500;
-        lpQ.value = lpQ.maxValue;
+        lpQ.value = 0.55f;
 
         hpCutoff.value = 0;
         hpQ.value = 0;
 
         bpCutoff.value = 0;
         bpQ.value = 0;
+
+        lpCutoffLfoSwitch.isOn = true;
+        lpCutoffLfoFreq.value = 0.02f;
+        lpCutoffLfoAmp.value = 500;
+        lpCutoffLfoStartPoint.value = 1200;       
     }
 }
