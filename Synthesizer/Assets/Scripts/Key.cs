@@ -34,5 +34,10 @@ public class Key : MonoBehaviour
             oscillator.NoteOff();
             keyImage.color = Color.white;
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
     }
 }
